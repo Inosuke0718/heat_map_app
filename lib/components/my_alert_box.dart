@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class EnterNewHabitBox extends StatelessWidget {
+class MyAlertBox extends StatelessWidget {
   // Finalは変数に一度だけ値を代入できる
   // ウィジェットやアニメーションなどを制御するオブジェクト
   final controller;
@@ -8,7 +8,7 @@ class EnterNewHabitBox extends StatelessWidget {
   final VoidCallback onCancel;
 
   // クラスのコンストラクタ
-  const EnterNewHabitBox(
+  const MyAlertBox(
       {super.key,
       required this.controller,
       required this.onSave,

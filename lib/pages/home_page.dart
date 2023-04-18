@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:heat_map_app/components/habit_tile.dart';
 
 import '../components/my_fad.dart';
-import '../components/new_habit_box.dart';
+import '../components/my_alert_box.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,10 +34,10 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) {
-        return EnterNewHabitBox(
+        return MyAlertBox(
           controller: _newHabitNameController,
           onSave: saveNewHabit,
-          onCancel: cancelNewHabit,
+          onCancel: cancelDialogBox,
         );
       },
     );
@@ -54,11 +54,41 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).pop();
   }
 
-  void cancelNewHabit() {
+  void cancelDialogBox() {
     // もしこの記述がないとCancelを押しても残ってしまう
     _newHabitNameController.clear();
     // 前の画面に戻る
     Navigator.of(context).pop();
+  }
+
+  // open habit settings to edit
+  void openHabitSettings(int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return MyAlertBox(
+          controller: _newHabitNameController,
+          onSave: () => saveExistingHabit(index),
+          onCancel: cancelDialogBox,
+        );
+      },
+    );
+  }
+
+  // save existing habit with a new name
+  void saveExistingHabit(int index) {
+    setState(() {
+      todaysHabitList[index][0] = _newHabitNameController.text;
+    });
+    _newHabitNameController.clear();
+    Navigator.of(context).pop();
+  }
+
+  // save existing habit with a new name
+  void deleteHabit(int index) {
+    setState(() {
+      todaysHabitList.removeAt(index);
+    });
   }
 
   @override
@@ -74,9 +104,12 @@ class _HomePageState extends State<HomePage> {
           itemCount: todaysHabitList.length,
           itemBuilder: (context, index) {
             return HabitTile(
-                habitName: todaysHabitList[index][0],
-                habitCompleted: todaysHabitList[index][1],
-                onChanged: (value) => checkBoxTapped(value, index));
+              habitName: todaysHabitList[index][0],
+              habitCompleted: todaysHabitList[index][1],
+              onChanged: (value) => checkBoxTapped(value, index),
+              settingsTapped: (context) => openHabitSettings(index),
+              deleteTapped: (context) => deleteHabit(index),
+            );
           },
         ));
   }
