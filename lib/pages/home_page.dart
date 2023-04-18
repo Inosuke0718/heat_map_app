@@ -1,0 +1,83 @@
+import 'package:flutter/material.dart';
+import 'package:heat_map_app/components/habit_tile.dart';
+
+import '../components/my_fad.dart';
+import '../components/new_habit_box.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // data structure for todays list
+  List todaysHabitList = [
+    // [name, completed or not]
+    ["Morning Walk", false],
+    ["Meditation", false],
+    ["Study", false],
+  ];
+
+  // これは関数setStateメソッドで状態を更新している
+  void checkBoxTapped(bool? value, index) {
+    setState(() {
+      todaysHabitList[index][1] = value;
+    });
+  }
+
+  // create a new habit(task)
+  // テキスト入力ウィジェット（例えばTextFieldやTextFormField）で使用される、テキスト入力を管理するためのクラスです。
+  final _newHabitNameController = TextEditingController();
+  void creatNewHabit() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EnterNewHabitBox(
+          controller: _newHabitNameController,
+          onSave: saveNewHabit,
+          onCancel: cancelNewHabit,
+        );
+      },
+    );
+  }
+
+  // save new habit
+  void saveNewHabit() {
+    // add new habit to todays habit list
+    setState(() {
+      todaysHabitList.add([_newHabitNameController.text, false]);
+    });
+    _newHabitNameController.clear();
+    // 前の画面に戻る
+    Navigator.of(context).pop();
+  }
+
+  void cancelNewHabit() {
+    // もしこの記述がないとCancelを押しても残ってしまう
+    _newHabitNameController.clear();
+    // 前の画面に戻る
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 主要なコンテンツを表示
+    return Scaffold(
+        backgroundColor: Colors.grey[300],
+        floatingActionButton: MyFloatingActionButton(onPressed: creatNewHabit),
+        // body: ListView(
+        // listでコンテンツを作れるUsefulなmethodがある
+        body: ListView.builder(
+          // ListView内で表示させるアイテムの数を指定する必要がある
+          itemCount: todaysHabitList.length,
+          itemBuilder: (context, index) {
+            return HabitTile(
+                habitName: todaysHabitList[index][0],
+                habitCompleted: todaysHabitList[index][1],
+                onChanged: (value) => checkBoxTapped(value, index));
+          },
+        ));
+  }
+}
