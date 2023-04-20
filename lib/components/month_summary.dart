@@ -5,11 +5,13 @@ import 'package:heat_map_app/datetime/date_time.dart';
 class MonthlySummary extends StatelessWidget {
   final Map<DateTime, int>? datasets;
   final String startDate;
+  final int duration;
 
   const MonthlySummary({
     super.key,
     required this.datasets,
     required this.startDate,
+    required this.duration,
   });
 
   @override
@@ -17,8 +19,9 @@ class MonthlySummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(top: 25, bottom: 25),
       child: HeatMap(
-        startDate: createDateTimeObject(startDate),
-        endDate: DateTime.now().add(Duration(days: 0)),
+        // todo ここを可変にするには
+        startDate: createDateTimeObject(startDate).add(Duration(days: -duration)),
+        endDate: DateTime.now().add(Duration(days: duration)),
         datasets: datasets,
         colorMode: ColorMode.color,
         defaultColor: Colors.grey[200],

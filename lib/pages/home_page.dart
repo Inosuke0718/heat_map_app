@@ -17,12 +17,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   HabitDatabase db = HabitDatabase();
   final _myBox = Hive.box("Habit_Database");
+  final _durationController = TextEditingController();
+  // int get duration => int.tryParse(_durationController.text) ?? 30;
+  late int duration;
 
   @override
   void initState() {
+    duration = _myBox.get("DURATION") == null
+            ? 30
+            : _myBox.get('DURATION');
     //  if there is no current habit list, then it is the 1st time ever opening the app
     // then create default data
-
     if (_myBox.get("CURRENT_HABIT_LIST") == null) {
       db.createDefaultData();
 
@@ -126,9 +131,28 @@ class _HomePageState extends State<HomePage> {
         body: ListView(
             // listでコンテンツを作れるUsefulなmethodがある
             children: [
+              Column(
+                children: [
+                  TextField(
+                    controller: _durationController,
+                    decoration: InputDecoration(
+                      labelText: 'Duration',
+                      hintText: 'Enter some text',
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        // 文字列"value"を整数値に変換
+                        duration = int.tryParse(value) ?? 10;
+                        _myBox.put('DURATION', duration);
+                      });
+                    },
+                  ),
+                ],
+              ),
               MonthlySummary(
                 datasets: db.heatMapDataSet,
                 startDate: _myBox.get("START_DATE"),
+                duration: duration,
               ),
 
               // list of habits

@@ -18,6 +18,7 @@ class HabitDatabase {
     ];
 
     _myBox.put("START_DATE", todaysDateFormatted());
+    _myBox.put("DURATION", 10);
   }
 
   void loadData() {
@@ -43,6 +44,14 @@ class HabitDatabase {
 
     // calculate habit complete percentage for each day
     calculateHabitPercentages();
+
+    // load heat map
+    loadHeatMap();
+  }
+
+  void updateDurationDatabase(duration) {
+    // update todays entry
+    _myBox.put("DURATION", duration);
 
     // load heat map
     loadHeatMap();

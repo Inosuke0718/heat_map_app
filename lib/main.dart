@@ -16,6 +16,7 @@ void main() async {
   // initialize hive
   await Hive.initFlutter();
   // open a box
+  // 引数にキーを指定することで、キーに対応するBox インスタンスを取得することができます。
   await Hive.openBox("Habit_Database");
 
   runApp(const MyApp());
