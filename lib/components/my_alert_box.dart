@@ -7,7 +7,7 @@ class MyAlertBox extends StatelessWidget {
   final String hintText;
   final VoidCallback onSave;
   final VoidCallback onCancel;
-
+  
   // クラスのコンストラクタ
   const MyAlertBox({
     super.key,

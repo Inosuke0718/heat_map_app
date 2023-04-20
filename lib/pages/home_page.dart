@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:heat_map_app/components/habit_tile.dart';
+import 'package:hive/hive.dart';
 
+import '../components/month_summary.dart';
 import '../components/my_fad.dart';
 import '../components/my_alert_box.dart';
+import '../data/habit_database.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,19 +15,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // data structure for todays list
-  List todaysHabitList = [
-    // [name, completed or not]
-    ["Morning Walk", false],
-    ["Meditation", false],
-    ["Study", false],
-  ];
+  HabitDatabase db = HabitDatabase();
+  final _myBox = Hive.box("Habit_Database");
+
+  @override
+  void initState() {
+    //  if there is no current habit list, then it is the 1st time ever opening the app
+    // then create default data
+
+    if (_myBox.get("CURRENT_HABIT_LIST") == null) {
+      db.createDefaultData();
+
+      // there already exists data, this is not the first time
+    } else {
+      db.loadData();
+    }
+
+    // update the database
+    db.updateDatabase();
+
+    super.initState();
+  }
 
   // これは関数setStateメソッドで状態を更新している
   void checkBoxTapped(bool? value, index) {
     setState(() {
-      todaysHabitList[index][1] = value;
+      db.todaysHabitList[index][1] = value;
     });
+    db.updateDatabase();
   }
 
   // create a new habit(task)
@@ -48,11 +66,13 @@ class _HomePageState extends State<HomePage> {
   void saveNewHabit() {
     // add new habit to todays habit list
     setState(() {
-      todaysHabitList.add([_newHabitNameController.text, false]);
+      db.todaysHabitList.add([_newHabitNameController.text, false]);
     });
     _newHabitNameController.clear();
     // 前の画面に戻る
     Navigator.of(context).pop();
+
+    db.updateDatabase();
   }
 
   void cancelDialogBox() {
@@ -70,7 +90,7 @@ class _HomePageState extends State<HomePage> {
         return MyAlertBox(
           controller: _newHabitNameController,
           // 引数に選択したリストの内容を入れてあげる
-          hintText: todaysHabitList[index][0],
+          hintText: db.todaysHabitList[index][0],
           onSave: () => saveExistingHabit(index),
           onCancel: cancelDialogBox,
         );
@@ -81,17 +101,20 @@ class _HomePageState extends State<HomePage> {
   // save existing habit with a new name
   void saveExistingHabit(int index) {
     setState(() {
-      todaysHabitList[index][0] = _newHabitNameController.text;
+      db.todaysHabitList[index][0] = _newHabitNameController.text;
     });
     _newHabitNameController.clear();
     Navigator.of(context).pop();
+
+    db.updateDatabase();
   }
 
   // save existing habit with a new name
   void deleteHabit(int index) {
     setState(() {
-      todaysHabitList.removeAt(index);
+      db.todaysHabitList.removeAt(index);
     });
+    db.updateDatabase();
   }
 
   @override
@@ -100,20 +123,29 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         floatingActionButton: MyFloatingActionButton(onPressed: creatNewHabit),
-        // body: ListView(
-        // listでコンテンツを作れるUsefulなmethodがある
-        body: ListView.builder(
-          // ListView内で表示させるアイテムの数を指定する必要がある
-          itemCount: todaysHabitList.length,
-          itemBuilder: (context, index) {
-            return HabitTile(
-              habitName: todaysHabitList[index][0],
-              habitCompleted: todaysHabitList[index][1],
-              onChanged: (value) => checkBoxTapped(value, index),
-              settingsTapped: (context) => openHabitSettings(index),
-              deleteTapped: (context) => deleteHabit(index),
-            );
-          },
-        ));
+        body: ListView(
+            // listでコンテンツを作れるUsefulなmethodがある
+            children: [
+              MonthlySummary(
+                datasets: db.heatMapDataSet,
+                startDate: _myBox.get("START_DATE"),
+              ),
+
+              // list of habits
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: db.todaysHabitList.length,
+                itemBuilder: (context, index) {
+                  return HabitTile(
+                    habitName: db.todaysHabitList[index][0],
+                    habitCompleted: db.todaysHabitList[index][1],
+                    onChanged: (value) => checkBoxTapped(value, index),
+                    settingsTapped: (context) => openHabitSettings(index),
+                    deleteTapped: (context) => deleteHabit(index),
+                  );
+                },
+              )
+            ]));
   }
 }
