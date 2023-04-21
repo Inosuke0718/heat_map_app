@@ -10,14 +10,14 @@ import '../data/habit_database.dart';
 import 'heat_map_page.dart';
 import 'setting_page.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HeatMapPage extends StatefulWidget {
+  const HeatMapPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HeatMapPage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HeatMapPage> {
   HabitDatabase db = HabitDatabase();
   final _myBox = Hive.box("Habit_Database");
   final _durationController = TextEditingController();
@@ -124,79 +124,53 @@ class _HomePageState extends State<HomePage> {
     db.updateDatabase();
   }
 
-  void _navigateBottomBar(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  final List<Widget> _pages = [
-    HeatMapPage(),
-    SettingPage(),
-    HeatMapPage(),
-    SettingPage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     // 主要なコンテンツを表示
     return Scaffold(
-      body: _pages[_selectedIndex],
       backgroundColor: Colors.grey[300],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _navigateBottomBar,
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Message'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
-      ),
       floatingActionButton: MyFloatingActionButton(onPressed: creatNewHabit),
-      // body: ListView(children: [
-      //     Column(
-      //       children: [
-      //         TextField(
-      //           controller: _durationController,
-      //           decoration: InputDecoration(
-      //             labelText: 'Duration',
-      //             hintText: 'Enter some text',
-      //           ),
-      //           onChanged: (value) {
-      //             setState(() {
-      //               // 文字列"value"を整数値に変換
-      //               duration = int.tryParse(value) ?? 10;
-      //               _myBox.put('DURATION', duration);
-      //             });
-      //           },
-      //         ),
-      //       ],
-      //     ),
-      //     MonthlySummary(
-      //       datasets: db.heatMapDataSet,
-      //       startDate: _myBox.get("START_DATE"),
-      //       duration: duration,
-      //     ),
+      body: ListView(children: [
+        Column(
+          children: [
+            TextField(
+              controller: _durationController,
+              decoration: InputDecoration(
+                labelText: 'Duration',
+                hintText: 'Enter some text',
+              ),
+              onChanged: (value) {
+                setState(() {
+                  // 文字列"value"を整数値に変換
+                  duration = int.tryParse(value) ?? 10;
+                  _myBox.put('DURATION', duration);
+                });
+              },
+            ),
+          ],
+        ),
+        MonthlySummary(
+          datasets: db.heatMapDataSet,
+          startDate: _myBox.get("START_DATE"),
+          duration: duration,
+        ),
 
-      //     // list of habits
-      //     ListView.builder(
-      //       shrinkWrap: true,
-      //       physics: const NeverScrollableScrollPhysics(),
-      //       itemCount: db.todaysHabitList.length,
-      //       itemBuilder: (context, index) {
-      //         return HabitTile(
-      //           habitName: db.todaysHabitList[index][0],
-      //           habitCompleted: db.todaysHabitList[index][1],
-      //           onChanged: (value) => checkBoxTapped(value, index),
-      //           settingsTapped: (context) => openHabitSettings(index),
-      //           deleteTapped: (context) => deleteHabit(index),
-      //         );
-      //       },
-      //     )
-      //   ]);;,
+        // list of habits
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: db.todaysHabitList.length,
+          itemBuilder: (context, index) {
+            return HabitTile(
+              habitName: db.todaysHabitList[index][0],
+              habitCompleted: db.todaysHabitList[index][1],
+              onChanged: (value) => checkBoxTapped(value, index),
+              settingsTapped: (context) => openHabitSettings(index),
+              deleteTapped: (context) => deleteHabit(index),
+            );
+          },
+        )
+      ]),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:heat_map_app/pages/home_page.dart';
+import 'package:heat_map_app/pages/heat_map_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 // Firebase を使う時に必要なコード 1
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Material Designに基づくアプリケーションを構築するための基本的なウィジェット
     return MaterialApp(
       // debugのバナーを非表示
       debugShowCheckedModeBanner: false,
