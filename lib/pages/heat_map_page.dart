@@ -128,7 +128,7 @@ class _HomePageState extends State<HeatMapPage> {
   Widget build(BuildContext context) {
     // 主要なコンテンツを表示
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.black,
       floatingActionButton: MyFloatingActionButton(onPressed: creatNewHabit),
       body: ListView(children: [
         Column(

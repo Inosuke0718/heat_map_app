@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heat_map_app/components/habit_tile.dart';
 import 'package:hive/hive.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
 import '../components/month_summary.dart';
 import '../components/my_fad.dart';
@@ -124,13 +125,7 @@ class _HomePageState extends State<HomePage> {
     db.updateDatabase();
   }
 
-  void _navigateBottomBar(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  final List<Widget> _pages = [
+  final List<Widget> _widgetOptions = <Widget>[
     HeatMapPage(),
     SettingPage(),
     HeatMapPage(),
@@ -141,62 +136,35 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // 主要なコンテンツを表示
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: _widgetOptions.elementAt(_selectedIndex),
       backgroundColor: Colors.grey[300],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _navigateBottomBar,
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Message'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
+      bottomNavigationBar: Container(
+        // color: Colors.black,
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
+            child: GNav(
+              // backgroundColor: Colors.black,
+              // color: Colors.white,
+              // activeColor: Colors.white,
+              tabBackgroundColor: Colors.grey,
+              padding: EdgeInsets.all(16),
+              gap: 8,
+              selectedIndex: _selectedIndex,
+              onTabChange: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              tabs: const [
+                GButton(icon: Icons.task_alt, text: 'Home'),
+                // GButton(icon: Icons.done_outline, text: 'Home'),
+                GButton(icon: Icons.list, text: 'Likes'),
+                GButton(icon: Icons.stars, text: 'Search'),
+                GButton(icon: Icons.settings, text: 'Setting'),
+              ],
+            )),
       ),
       floatingActionButton: MyFloatingActionButton(onPressed: creatNewHabit),
-      // body: ListView(children: [
-      //     Column(
-      //       children: [
-      //         TextField(
-      //           controller: _durationController,
-      //           decoration: InputDecoration(
-      //             labelText: 'Duration',
-      //             hintText: 'Enter some text',
-      //           ),
-      //           onChanged: (value) {
-      //             setState(() {
-      //               // 文字列"value"を整数値に変換
-      //               duration = int.tryParse(value) ?? 10;
-      //               _myBox.put('DURATION', duration);
-      //             });
-      //           },
-      //         ),
-      //       ],
-      //     ),
-      //     MonthlySummary(
-      //       datasets: db.heatMapDataSet,
-      //       startDate: _myBox.get("START_DATE"),
-      //       duration: duration,
-      //     ),
-
-      //     // list of habits
-      //     ListView.builder(
-      //       shrinkWrap: true,
-      //       physics: const NeverScrollableScrollPhysics(),
-      //       itemCount: db.todaysHabitList.length,
-      //       itemBuilder: (context, index) {
-      //         return HabitTile(
-      //           habitName: db.todaysHabitList[index][0],
-      //           habitCompleted: db.todaysHabitList[index][1],
-      //           onChanged: (value) => checkBoxTapped(value, index),
-      //           settingsTapped: (context) => openHabitSettings(index),
-      //           deleteTapped: (context) => deleteHabit(index),
-      //         );
-      //       },
-      //     )
-      //   ]);;,
     );
   }
 }
